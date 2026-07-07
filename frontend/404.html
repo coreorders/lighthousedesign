@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Light House Design</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Light House Design</p>
+        <h1>현장 진행 공유</h1>
+      </div>
+    </header>
+
+    <main>
+      <section id="clientView" class="view">
+        <form id="clientLoginForm" class="panel auth-panel">
+          <h2>현장 입장</h2>
+          <label>
+            현장 URL 이름
+            <input id="clientSlug" name="slug" autocomplete="off" placeholder="예: gangnam-apt">
+          </label>
+          <label>
+            현장 비밀번호
+            <input id="clientPassword" name="password" type="password" autocomplete="current-password">
+          </label>
+          <button type="submit">입장</button>
+          <p id="clientLoginMessage" class="message"></p>
+        </form>
+
+        <section id="clientDashboard" class="hidden">
+          <div class="site-heading">
+            <div>
+              <p class="eyebrow">고객 화면</p>
+              <h2 id="siteName">현장</h2>
+            </div>
+            <span id="siteStatus" class="badge"></span>
+          </div>
+
+          <article id="siteNotice" class="notice hidden"></article>
+
+          <div class="calendar-shell">
+            <div class="calendar-controls">
+              <button id="prevMonthBtn" type="button" aria-label="이전 달">&lt;</button>
+              <strong id="calendarTitle"></strong>
+              <button id="nextMonthBtn" type="button" aria-label="다음 달">&gt;</button>
+            </div>
+            <div class="weekdays">
+              <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+            </div>
+            <div id="calendarGrid" class="calendar-grid"></div>
+          </div>
+
+          <section class="memo-panel">
+            <div class="section-title">
+              <h3>한줄 메모</h3>
+              <button id="refreshMemosBtn" class="ghost" type="button">새로고침</button>
+            </div>
+            <form id="memoForm" class="memo-form">
+              <input id="memoAuthor" placeholder="이름" value="고객">
+              <input id="memoContent" placeholder="요청사항이나 한줄 메모를 남겨주세요">
+              <button type="submit">등록</button>
+            </form>
+            <div id="memoList" class="memo-list"></div>
+          </section>
+        </section>
+      </section>
+
+      <section id="adminView" class="view hidden">
+        <form id="adminLoginForm" class="panel auth-panel">
+          <h2>관리자 로그인</h2>
+          <label>
+            이메일
+            <input id="adminEmail" type="email" autocomplete="username">
+          </label>
+          <label>
+            비밀번호
+            <input id="adminPassword" type="password" autocomplete="current-password">
+          </label>
+          <button type="submit">로그인</button>
+          <p id="adminLoginMessage" class="message"></p>
+        </form>
+
+        <section id="adminDashboard" class="hidden admin-layout">
+          <aside class="panel">
+            <div class="section-title">
+              <h2>현장 관리</h2>
+              <button id="loadSitesBtn" class="ghost" type="button">새로고침</button>
+            </div>
+            <form id="siteForm" class="stacked-form">
+              <input id="siteNameInput" placeholder="현장명">
+              <input id="siteSlugInput" placeholder="URL 이름">
+              <input id="sitePasswordInput" placeholder="고객 비밀번호">
+              <textarea id="siteNoticeInput" placeholder="하단 고정 공지"></textarea>
+              <button type="submit">현장 추가</button>
+            </form>
+            <div id="siteList" class="site-list"></div>
+          </aside>
+
+          <section id="adminSitePanel" class="panel hidden">
+            <div class="section-title">
+              <div>
+                <p class="eyebrow">선택된 현장</p>
+                <h2 id="adminSelectedSiteName"></h2>
+              </div>
+              <select id="siteStatusSelect">
+                <option value="active">진행중</option>
+                <option value="completed">완료</option>
+              </select>
+            </div>
+            <label>
+              공지
+              <textarea id="adminNoticeEdit"></textarea>
+            </label>
+            <button id="saveSiteBtn" type="button">현장 정보 저장</button>
+
+            <div class="admin-calendar-shell">
+              <div class="calendar-controls">
+                <button id="adminPrevMonthBtn" type="button" aria-label="이전 달">&lt;</button>
+                <strong id="adminCalendarTitle"></strong>
+                <button id="adminNextMonthBtn" type="button" aria-label="다음 달">&gt;</button>
+              </div>
+              <div class="weekdays">
+                <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+              </div>
+              <div id="adminCalendarGrid" class="calendar-grid admin-calendar-grid"></div>
+              <p id="adminCalendarMessage" class="message"></p>
+            </div>
+
+            <div class="split">
+              <label>
+                선택 날짜
+                <input id="entryDateInput" type="date">
+              </label>
+              <label>
+                일정
+                <input id="scheduleInput" placeholder="예: 타일 작업">
+              </label>
+            </div>
+            <label>
+              현장 글
+              <textarea id="detailTextInput" placeholder="사진 팝업 하단에 표시할 진행 내용이나 설명을 적어주세요"></textarea>
+            </label>
+            <button id="saveScheduleBtn" type="button">일정 저장</button>
+
+            <label class="upload-box">
+              사진 업로드
+              <input id="photoInput" type="file" accept="image/*" multiple>
+            </label>
+            <button id="uploadPhotosBtn" type="button">사진 올리기</button>
+
+            <div class="danger-zone">
+              <button id="softDeleteSiteBtn" class="danger" type="button">고객 접근 종료</button>
+              <button id="purgeSiteBtn" class="danger outline" type="button">데이터 완전 삭제</button>
+            </div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="photoDialog">
+      <button id="closePhotoDialog" class="dialog-close" type="button">닫기</button>
+      <div id="photoViewer" class="photo-viewer"></div>
+    </dialog>
+
+    <script src="./config.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
