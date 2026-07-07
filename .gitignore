@@ -1,5 +1,6 @@
 node_modules/
 .env
+.env.example
 backend/uploads/
 postgres-data/
 *.log
