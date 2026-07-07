@@ -56,6 +56,7 @@ const els = {
   detailTextInput: $("detailTextInput"),
   photoInput: $("photoInput"),
   uploadPhotosBtn: $("uploadPhotosBtn"),
+  adminPhotoList: $("adminPhotoList"),
   saveScheduleBtn: $("saveScheduleBtn"),
   softDeleteSiteBtn: $("softDeleteSiteBtn"),
   purgeSiteBtn: $("purgeSiteBtn"),
@@ -111,6 +112,7 @@ els.entryDateInput.addEventListener("change", () => {
   const entry = findAdminEntry(els.entryDateInput.value);
   els.scheduleInput.value = entry?.schedule_text || "";
   els.detailTextInput.value = entry?.detail_text || "";
+  renderAdminPhotoList(entry);
   renderAdminCalendar();
 });
 
@@ -211,6 +213,7 @@ els.uploadPhotosBtn.addEventListener("click", async () => {
   }).then(handleFetch);
   els.photoInput.value = "";
   await loadAdminCalendar();
+  renderAdminPhotoList(findAdminEntry(els.entryDateInput.value));
   alert("사진을 업로드했습니다.");
 });
 
@@ -259,7 +262,17 @@ function configureClientEntry() {
 async function loadMemos() {
   const data = await api(`/api/sites/${state.clientSlug}/memos`, { token: state.clientToken });
   els.memoList.innerHTML = data.memos
-    .map((memo) => `<article class="memo-item"><strong>${escapeHtml(memo.author_name)}</strong><p>${escapeHtml(memo.content)}</p></article>`)
+    .map(
+      (memo) => `
+        <article class="memo-item">
+          <div class="memo-meta">
+            <strong>${escapeHtml(memo.author_name)}</strong>
+            <time>${escapeHtml(formatMemoTime(memo.created_at))}</time>
+          </div>
+          <p>${escapeHtml(memo.content)}</p>
+        </article>
+      `,
+    )
     .join("");
 }
 
@@ -360,6 +373,7 @@ function selectAdminDate(dateKey, entry) {
   els.entryDateInput.value = dateKey;
   els.scheduleInput.value = entry?.schedule_text || "";
   els.detailTextInput.value = entry?.detail_text || "";
+  renderAdminPhotoList(entry);
   renderAdminCalendar();
 }
 
@@ -421,6 +435,7 @@ function selectAdminSite(site) {
   els.entryDateInput.value = toDateKey(new Date());
   els.scheduleInput.value = "";
   els.detailTextInput.value = "";
+  renderAdminPhotoList();
   loadAdminCalendar().catch(showAdminCalendarError);
   loadAdminSites();
 }
@@ -434,7 +449,46 @@ async function loadAdminCalendar() {
     els.scheduleInput.value = currentEntry.schedule_text || "";
     els.detailTextInput.value = currentEntry.detail_text || "";
   }
+  renderAdminPhotoList(currentEntry);
   renderAdminCalendar();
+}
+
+function renderAdminPhotoList(entry = findAdminEntry(els.entryDateInput.value)) {
+  const photos = entry?.photos || [];
+  if (!photos.length) {
+    els.adminPhotoList.innerHTML = '<p class="empty-detail">선택한 날짜에 업로드된 사진이 없습니다.</p>';
+    return;
+  }
+  els.adminPhotoList.innerHTML = `
+    <strong class="photo-list-title">업로드된 사진</strong>
+    <div class="photo-thumb-grid">
+      ${photos
+        .map(
+          (photo) => `
+            <article class="photo-thumb-card">
+              <img src="${API_BASE}${photo.file_path}" alt="${escapeHtml(photo.original_name)}">
+              <div>
+                <span>${escapeHtml(photo.original_name)}</span>
+                <button class="outline delete-photo-btn" type="button" data-photo-id="${escapeHtml(photo.id)}">삭제</button>
+              </div>
+            </article>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+  els.adminPhotoList.querySelectorAll(".delete-photo-btn").forEach((button) => {
+    button.addEventListener("click", () => deleteAdminPhoto(button.dataset.photoId));
+  });
+}
+
+async function deleteAdminPhoto(photoId) {
+  if (!photoId || !confirm("이 사진을 삭제할까요?")) return;
+  await api(`/api/admin/photos/${encodeURIComponent(photoId)}`, {
+    method: "DELETE",
+    token: state.adminToken,
+  });
+  await loadAdminCalendar();
 }
 
 function showAdminCalendarError(error) {
@@ -491,6 +545,15 @@ function statusLabel(status) {
 
 function formatDate(value) {
   return String(value || "").slice(0, 10);
+}
+
+function formatMemoTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const day = date.getDate();
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${day}일 ${hours}:${minutes}`;
 }
 
 function escapeHtml(value) {

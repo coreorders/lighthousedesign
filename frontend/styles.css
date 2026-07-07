@@ -334,8 +334,21 @@ button.day-cell:hover {
   padding-top: 10px;
 }
 
-.memo-item strong {
+.memo-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.memo-meta strong {
   color: var(--accent-strong);
+}
+
+.memo-meta time {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 .memo-item p {
@@ -393,6 +406,59 @@ button.day-cell:hover {
   border: 1px dashed var(--line);
   border-radius: 8px;
   padding: 14px;
+}
+
+.admin-photo-list {
+  display: grid;
+  gap: 10px;
+}
+
+.photo-list-title {
+  color: var(--accent-strong);
+}
+
+.photo-thumb-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.photo-thumb-card {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 8px;
+}
+
+.photo-thumb-card img {
+  width: 56px;
+  height: 56px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #111;
+}
+
+.photo-thumb-card div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.photo-thumb-card span {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.photo-thumb-card button {
+  min-height: 32px;
+  padding: 0 10px;
 }
 
 .danger-zone {
