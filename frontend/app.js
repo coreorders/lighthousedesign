@@ -296,16 +296,18 @@ function renderCalendar() {
     date.setDate(start.getDate() + i);
     const key = toDateKey(date);
     const entry = byDate.get(key);
+    const scheduleText = entry?.schedule_text || "";
+    const showScheduleText = scheduleText && visibleTextLength(scheduleText) <= 4;
     const cell = document.createElement("article");
     cell.className = `day-cell ${date.getMonth() === month ? "" : "muted"} ${entry ? "has-entry" : ""}`;
     cell.innerHTML = `<span class="day-number">${date.getDate()}</span>`;
-    if (entry?.schedule_text) {
-      cell.insertAdjacentHTML("beforeend", `<span class="schedule-text">${escapeHtml(entry.schedule_text)}</span>`);
+    if (showScheduleText) {
+      cell.insertAdjacentHTML("beforeend", `<span class="schedule-text">${escapeHtml(scheduleText)}</span>`);
     }
     if (entry?.schedule_text || entry?.photos?.length || entry?.detail_text) {
       const actions = document.createElement("div");
       actions.className = "entry-actions";
-      if (entry.schedule_text) {
+      if (scheduleText && !showScheduleText) {
         actions.appendChild(createEntryAction("일정", "schedule", entry));
       }
       if (entry.photos?.length) {
@@ -571,6 +573,10 @@ function formatMemoTime(value) {
   const hours = String(date.getHours()).padStart(2, "0");
   const minutes = String(date.getMinutes()).padStart(2, "0");
   return `${day}일 ${hours}:${minutes}`;
+}
+
+function visibleTextLength(value) {
+  return String(value || "").replace(/\s+/g, "").length;
 }
 
 function escapeHtml(value) {
