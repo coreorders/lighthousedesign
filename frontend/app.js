@@ -253,7 +253,9 @@ async function loadClientDashboard() {
     els.siteNotice.classList.add("hidden");
   }
   renderCalendar();
-  await loadMemos();
+  if (!els.memoForm.closest(".memo-panel")?.classList.contains("hidden")) {
+    await loadMemos();
+  }
 }
 
 function configureClientEntry() {
