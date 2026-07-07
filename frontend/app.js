@@ -272,7 +272,7 @@ function configureClientEntry() {
 async function loadClientLoginTitle(slug) {
   if (!slug || !els.clientLoginTitle) return;
   const data = await api(`/api/sites/${encodeURIComponent(slug)}`);
-  els.clientLoginTitle.textContent = `'${data.site.name}' 진행상황 캘린더입니다.`;
+  els.clientLoginTitle.textContent = `'${data.site.name}' 현장 일정 캘린더입니다.`;
 }
 
 async function loadMemos() {
