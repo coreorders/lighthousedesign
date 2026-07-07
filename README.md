@@ -113,6 +113,52 @@ API 주소는 Cloudflare Tunnel에서 `api.lighthousedesign.cloud`를 내 컴퓨
 
 프론트의 API 주소는 [frontend/config.js](frontend/config.js)에 있습니다.
 
+## Cloudflare Tunnel 설정
+
+Cloudflare Tunnel로 `api.lighthousedesign.cloud`를 내 컴퓨터 Docker API에 연결합니다.
+
+가장 쉬운 방식은 `lighthousedesign.cloud` 도메인의 네임서버를 Cloudflare로 옮긴 뒤, Cloudflare DNS에서 GitHub Pages 레코드와 API 터널 레코드를 같이 관리하는 것입니다.
+
+Cloudflare DNS에 GitHub Pages 레코드를 다시 추가합니다.
+
+```text
+A      @     185.199.108.153
+A      @     185.199.109.153
+A      @     185.199.110.153
+A      @     185.199.111.153
+CNAME  www   coreorders.github.io
+```
+
+Cloudflare Zero Trust에서 Tunnel을 만듭니다.
+
+1. Zero Trust > Networks > Tunnels로 이동합니다.
+2. 새 tunnel을 만들고 Connector는 Docker를 선택합니다.
+3. 발급된 token을 `.env`의 `CLOUDFLARE_TUNNEL_TOKEN`에 붙여 넣습니다.
+4. Public Hostname을 추가합니다.
+
+```text
+Hostname: api.lighthousedesign.cloud
+Service:  http://api:3000
+```
+
+터널까지 함께 실행합니다.
+
+```bash
+docker compose --profile tunnel up --build
+```
+
+API 연결 확인:
+
+```text
+https://api.lighthousedesign.cloud/api/health
+```
+
+정상이라면 아래 응답이 나옵니다.
+
+```json
+{"ok":true}
+```
+
 ## API 주소 변경
 
 프론트는 기본적으로 `http://localhost:3000` API를 사용합니다. 배포 후에는 브라우저 콘솔에서 아래처럼 API 주소를 저장할 수 있습니다.
