@@ -278,14 +278,17 @@ function renderCalendar() {
     const key = toDateKey(date);
     const entry = byDate.get(key);
     const cell = document.createElement("article");
-    cell.className = `day-cell ${date.getMonth() === month ? "" : "muted"}`;
+    cell.className = `day-cell ${date.getMonth() === month ? "" : "muted"} ${entry ? "has-entry" : ""}`;
     cell.innerHTML = `<span class="day-number">${date.getDate()}</span>`;
     if (entry?.schedule_text) {
       cell.insertAdjacentHTML("beforeend", `<span class="schedule-text">${escapeHtml(entry.schedule_text)}</span>`);
     }
-    if (entry?.photos?.length || entry?.detail_text) {
+    if (entry?.schedule_text || entry?.photos?.length || entry?.detail_text) {
       const actions = document.createElement("div");
       actions.className = "entry-actions";
+      if (entry.schedule_text) {
+        actions.appendChild(createEntryAction("일정", "schedule", entry));
+      }
       if (entry.photos?.length) {
         actions.appendChild(createEntryAction("사진", "photo", entry));
       }
@@ -311,6 +314,9 @@ function createEntryAction(label, type, entry) {
 function entryIcon(type) {
   if (type === "photo") {
     return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h2.1l1.2-1.5h4.4L15.4 5h2.1A2.5 2.5 0 0 1 20 7.5v10A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5v-10Zm8 9a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm0-2a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"/></svg>';
+  }
+  if (type === "schedule") {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h2v2h6V2h2v2h3v18H4V4h3V2Zm11 8H6v10h12V10ZM6 8h12V6H6v2Zm2 4h3v3H8v-3Z"/></svg>';
   }
   return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l3 3v15H6V3Zm8 1.8V7h2.2L14 4.8ZM8 10v1.6h8V10H8Zm0 3.2v1.6h8v-1.6H8Zm0 3.2V18h5v-1.6H8Z"/></svg>';
 }
@@ -379,11 +385,15 @@ function openEntryPopup(entry) {
   const photos = entry.photos || [];
   const photoHtml = photos.length
     ? photos.map((photo) => `<img src="${API_BASE}${photo.file_path}" alt="${escapeHtml(photo.original_name)}">`).join("")
-    : '<p class="empty-detail">등록된 사진은 없고 글만 있습니다.</p>';
-  const detailHtml = entry.detail_text
-    ? `<article class="photo-detail"><strong>${escapeHtml(formatDate(entry.entry_date))}</strong><p>${escapeHtml(entry.detail_text)}</p></article>`
     : "";
-  els.photoViewer.innerHTML = `${photoHtml}${detailHtml}`;
+  const scheduleHtml = entry.schedule_text
+    ? `<article class="photo-detail"><strong>${escapeHtml(formatDate(entry.entry_date))} 일정</strong><p>${escapeHtml(entry.schedule_text)}</p></article>`
+    : "";
+  const detailHtml = entry.detail_text
+    ? `<article class="photo-detail"><strong>${escapeHtml(formatDate(entry.entry_date))} 글</strong><p>${escapeHtml(entry.detail_text)}</p></article>`
+    : "";
+  const emptyHtml = photoHtml || scheduleHtml || detailHtml ? "" : '<p class="empty-detail">등록된 내용이 없습니다.</p>';
+  els.photoViewer.innerHTML = `${photoHtml}${scheduleHtml}${detailHtml}${emptyHtml}`;
   els.photoDialog.showModal();
 }
 

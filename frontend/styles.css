@@ -308,6 +308,10 @@ button.day-cell:hover {
   color: #6a5017;
 }
 
+.entry-action.schedule {
+  display: none;
+}
+
 .memo-panel {
   margin-top: 22px;
   padding: 18px;
@@ -470,5 +474,62 @@ dialog::backdrop {
 
   .schedule-text {
     font-size: 12px;
+  }
+}
+
+@media (max-width: 520px) {
+  main {
+    padding-inline: 8px;
+  }
+
+  .calendar-shell {
+    padding: 10px;
+  }
+
+  .weekdays,
+  .calendar-grid {
+    gap: 4px;
+  }
+
+  .day-cell {
+    min-height: 58px;
+    padding: 5px 3px;
+  }
+
+  .day-number {
+    margin-bottom: 4px;
+    text-align: center;
+    font-size: 12px;
+  }
+
+  .calendar-grid .schedule-text {
+    display: none;
+  }
+
+  .calendar-grid .entry-actions {
+    justify-content: center;
+    gap: 3px;
+    margin-top: 2px;
+  }
+
+  .calendar-grid .entry-action {
+    width: 23px;
+    min-height: 23px;
+    padding: 0;
+    border-radius: 999px;
+    font-size: 0;
+  }
+
+  .calendar-grid .entry-action.schedule {
+    display: inline-flex;
+  }
+
+  .calendar-grid .entry-action span {
+    display: none;
+  }
+
+  .calendar-grid .entry-action svg {
+    width: 13px;
+    height: 13px;
   }
 }
