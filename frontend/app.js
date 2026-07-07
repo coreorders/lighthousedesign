@@ -2,7 +2,8 @@ const API_BASE = localStorage.getItem("lhdApiBase") || window.LHD_API_BASE || "h
 const route = parseRoute();
 
 const state = {
-  clientToken: localStorage.getItem("clientToken"),
+  routeSiteSlug: route.siteSlug || "",
+  clientToken: getStoredClientToken(route.siteSlug || new URLSearchParams(location.search).get("site") || localStorage.getItem("clientSlug") || ""),
   clientSlug: route.siteSlug || new URLSearchParams(location.search).get("site") || localStorage.getItem("clientSlug") || "",
   adminToken: localStorage.getItem("adminToken"),
   entries: [],
@@ -20,6 +21,7 @@ const els = {
   adminView: $("adminView"),
   clientLoginForm: $("clientLoginForm"),
   clientLoginMessage: $("clientLoginMessage"),
+  clientSlugField: $("clientSlugField"),
   clientSlug: $("clientSlug"),
   clientPassword: $("clientPassword"),
   clientDashboard: $("clientDashboard"),
@@ -65,10 +67,11 @@ const els = {
 };
 
 els.clientSlug.value = state.clientSlug;
+configureClientEntry();
 
 els.clientLoginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const slug = els.clientSlug.value.trim();
+  const slug = state.routeSiteSlug || els.clientSlug.value.trim();
   try {
     const data = await api(`/api/sites/${encodeURIComponent(slug)}/verify`, {
       method: "POST",
@@ -76,7 +79,7 @@ els.clientLoginForm.addEventListener("submit", async (event) => {
     });
     state.clientToken = data.token;
     state.clientSlug = slug;
-    localStorage.setItem("clientToken", data.token);
+    storeClientToken(slug, data.token);
     localStorage.setItem("clientSlug", slug);
     await loadClientDashboard();
   } catch (error) {
@@ -242,6 +245,15 @@ async function loadClientDashboard() {
   }
   renderCalendar();
   await loadMemos();
+}
+
+function configureClientEntry() {
+  if (state.routeSiteSlug) {
+    els.clientSlug.value = state.routeSiteSlug;
+    els.clientSlugField.classList.add("hidden");
+  } else {
+    els.clientSlugField.classList.remove("hidden");
+  }
 }
 
 async function loadMemos() {
@@ -428,6 +440,14 @@ function setMode(mode) {
     els.adminDashboard.classList.remove("hidden");
     loadAdminSites().catch(() => {});
   }
+  if (!admin && state.clientSlug && state.clientToken) {
+    loadClientDashboard().catch(() => {
+      clearClientToken(state.clientSlug);
+      state.clientToken = "";
+      els.clientLoginForm.classList.remove("hidden");
+      els.clientDashboard.classList.add("hidden");
+    });
+  }
 }
 
 async function api(path, options = {}) {
@@ -470,6 +490,23 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function clientTokenKey(slug) {
+  return `clientToken:${slug}`;
+}
+
+function getStoredClientToken(slug) {
+  if (!slug) return "";
+  return localStorage.getItem(clientTokenKey(slug)) || "";
+}
+
+function storeClientToken(slug, token) {
+  localStorage.setItem(clientTokenKey(slug), token);
+}
+
+function clearClientToken(slug) {
+  localStorage.removeItem(clientTokenKey(slug));
 }
 
 if (state.clientSlug) {

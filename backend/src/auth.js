@@ -17,7 +17,7 @@ export function signAdmin(admin) {
 
 export function signClient(site) {
   return jwt.sign({ role: "client", siteId: site.id, slug: site.slug }, jwtSecret(), {
-    expiresIn: "7d",
+    expiresIn: "3650d",
   });
 }
 
