@@ -340,6 +340,12 @@ button.day-cell:hover {
   color: #6a5017;
 }
 
+.entry-action.photo {
+  border-color: #bddbd3;
+  background: #e1f1ed;
+  color: var(--accent-strong);
+}
+
 .memo-panel {
   margin-top: 22px;
   padding: 18px;
@@ -590,6 +596,12 @@ dialog::backdrop {
     aspect-ratio: 1 / 1;
     min-height: 0;
     padding: 4px 3px;
+  }
+
+  button.day-cell {
+    min-height: 0;
+    padding: 4px 3px;
+    text-align: left;
   }
 
   .day-number {
