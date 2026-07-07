@@ -135,7 +135,7 @@ els.adminLoginForm.addEventListener("submit", async (event) => {
     const data = await api("/api/admin/login", {
       method: "POST",
       body: {
-        email: $("adminEmail").value,
+        username: $("adminEmail").value.trim(),
         password: $("adminPassword").value,
       },
     });

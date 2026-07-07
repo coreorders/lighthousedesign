@@ -10,7 +10,7 @@ const jwtSecret = () => {
 };
 
 export function signAdmin(admin) {
-  return jwt.sign({ role: "admin", adminId: admin.id, email: admin.email }, jwtSecret(), {
+  return jwt.sign({ role: "admin", adminId: admin.id, username: admin.email }, jwtSecret(), {
     expiresIn: "12h",
   });
 }
@@ -51,16 +51,15 @@ function readBearer(req) {
 }
 
 export async function ensureDefaultAdmin() {
-  const email = process.env.ADMIN_EMAIL;
+  const email = process.env.ADMIN_ID || process.env.ADMIN_EMAIL;
   const password = process.env.ADMIN_PASSWORD;
   if (!email || !password) return;
 
-  const existing = await query("SELECT id FROM admins WHERE email = $1", [email]);
-  if (existing.rowCount > 0) return;
-
   const passwordHash = await bcrypt.hash(password, 12);
-  await query("INSERT INTO admins (email, password_hash) VALUES ($1, $2)", [
-    email,
-    passwordHash,
-  ]);
+  await query(
+    `INSERT INTO admins (email, password_hash)
+     VALUES ($1, $2)
+     ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash`,
+    [email, passwordHash],
+  );
 }

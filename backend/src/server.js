@@ -82,13 +82,14 @@ app.post("/api/sites/:slug/memos", requireClient, async (req, res) => {
 });
 
 app.post("/api/admin/login", async (req, res) => {
-  const { email, password } = req.body;
-  const result = await query("SELECT * FROM admins WHERE email = $1", [email]);
+  const { password } = req.body;
+  const username = String(req.body.username || req.body.email || "").trim();
+  const result = await query("SELECT * FROM admins WHERE email = $1", [username]);
   const admin = result.rows[0];
   if (!admin || !(await bcrypt.compare(password || "", admin.password_hash))) {
     return res.status(401).json({ error: "관리자 로그인 정보가 올바르지 않습니다." });
   }
-  res.json({ token: signAdmin(admin), admin: { id: admin.id, email: admin.email } });
+  res.json({ token: signAdmin(admin), admin: { id: admin.id, username: admin.email } });
 });
 
 app.get("/api/admin/sites", requireAdmin, async (req, res) => {
