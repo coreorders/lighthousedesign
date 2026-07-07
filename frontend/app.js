@@ -623,10 +623,10 @@ function showToast(message) {
   window.clearTimeout(state.toastTimer);
   els.toast.textContent = message;
   els.toast.classList.remove("hidden");
-  els.toast.classList.add("show");
+  window.requestAnimationFrame(() => els.toast.classList.add("show"));
   state.toastTimer = window.setTimeout(() => {
     els.toast.classList.remove("show");
-    els.toast.classList.add("hidden");
+    window.setTimeout(() => els.toast.classList.add("hidden"), 180);
   }, 1500);
 }
 
