@@ -21,6 +21,7 @@ const els = {
   clientView: $("clientView"),
   adminView: $("adminView"),
   clientLoginForm: $("clientLoginForm"),
+  clientLoginTitle: $("clientLoginTitle"),
   clientLoginMessage: $("clientLoginMessage"),
   clientSlugField: $("clientSlugField"),
   clientSlug: $("clientSlug"),
@@ -262,9 +263,16 @@ function configureClientEntry() {
   if (state.routeSiteSlug) {
     els.clientSlug.value = state.routeSiteSlug;
     els.clientSlugField.classList.add("hidden");
+    loadClientLoginTitle(state.routeSiteSlug).catch(() => {});
   } else {
     els.clientSlugField.classList.remove("hidden");
   }
+}
+
+async function loadClientLoginTitle(slug) {
+  if (!slug || !els.clientLoginTitle) return;
+  const data = await api(`/api/sites/${encodeURIComponent(slug)}`);
+  els.clientLoginTitle.textContent = `'${data.site.name}' 진행상황 캘린더입니다.`;
 }
 
 async function loadMemos() {

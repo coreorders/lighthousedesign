@@ -4,21 +4,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Light House Design</title>
-    <link rel="stylesheet" href="./styles.css?v=20260707-6">
+    <link rel="stylesheet" href="./styles.css?v=20260707-7">
   </head>
   <body>
     <header class="topbar">
-      <div>
-        <p class="eyebrow">Light House Design</p>
-        <h1>현장 진행 공유</h1>
-      </div>
+      <img class="brand-logo" src="./logo.png" alt="Light House Design">
     </header>
     <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
     <main>
       <section id="clientView" class="view">
         <form id="clientLoginForm" class="panel auth-panel">
-          <h2>현장 입장</h2>
+          <h2 id="clientLoginTitle">현장 진행상황 캘린더입니다.</h2>
           <label id="clientSlugField">
             현장 URL 이름
             <input id="clientSlug" name="slug" autocomplete="off" placeholder="예: gangnam-apt">
@@ -168,7 +165,7 @@
       <div id="photoViewer" class="photo-viewer"></div>
     </dialog>
 
-    <script src="./config.js?v=20260707-6"></script>
-    <script src="./app.js?v=20260707-6"></script>
+    <script src="./config.js?v=20260707-7"></script>
+    <script src="./app.js?v=20260707-7"></script>
   </body>
 </html>

@@ -43,6 +43,12 @@ app.get("/api/health", (req, res) => {
   res.json({ ok: true });
 });
 
+app.get("/api/sites/:slug", async (req, res) => {
+  const site = await findPublicSite(req.params.slug);
+  if (!site) return res.status(404).json({ error: "현장을 찾을 수 없습니다." });
+  res.json({ site: publicSite(site) });
+});
+
 app.post("/api/sites/:slug/verify", async (req, res) => {
   const { password } = req.body;
   const site = await findPublicSite(req.params.slug);
