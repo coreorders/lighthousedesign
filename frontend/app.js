@@ -302,7 +302,7 @@ function renderCalendar() {
     cell.className = `day-cell ${date.getMonth() === month ? "" : "muted"} ${entry ? "has-entry" : ""}`;
     cell.innerHTML = `<span class="day-number">${date.getDate()}</span>`;
     if (showScheduleText) {
-      cell.insertAdjacentHTML("beforeend", `<span class="schedule-text">${escapeHtml(scheduleText)}</span>`);
+      cell.insertAdjacentHTML("beforeend", `<span class="schedule-text short-schedule-text">${escapeHtml(scheduleText)}</span>`);
     }
     if (entry?.schedule_text || entry?.photos?.length || entry?.detail_text) {
       const actions = document.createElement("div");
