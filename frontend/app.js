@@ -12,6 +12,7 @@ const state = {
   adminCurrentDate: new Date(),
   selectedSite: null,
   adminSites: [],
+  toastTimer: null,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -60,6 +61,8 @@ const els = {
   saveScheduleBtn: $("saveScheduleBtn"),
   softDeleteSiteBtn: $("softDeleteSiteBtn"),
   purgeSiteBtn: $("purgeSiteBtn"),
+  previewClientBtn: $("previewClientBtn"),
+  toast: $("toast"),
   adminCalendarTitle: $("adminCalendarTitle"),
   adminCalendarGrid: $("adminCalendarGrid"),
   adminCalendarMessage: $("adminCalendarMessage"),
@@ -67,6 +70,7 @@ const els = {
   adminNextMonthBtn: $("adminNextMonthBtn"),
 };
 
+consumePreviewToken();
 els.clientSlug.value = state.clientSlug;
 configureClientEntry();
 
@@ -199,7 +203,7 @@ els.saveScheduleBtn.addEventListener("click", async () => {
   upsertAdminEntry(data.entry);
   renderAdminCalendar();
   loadAdminCalendar().catch(showAdminCalendarError);
-  alert("일정을 저장했습니다.");
+  showToast("일정을 저장했습니다.");
 });
 
 els.uploadPhotosBtn.addEventListener("click", async () => {
@@ -214,8 +218,10 @@ els.uploadPhotosBtn.addEventListener("click", async () => {
   els.photoInput.value = "";
   await loadAdminCalendar();
   renderAdminPhotoList(findAdminEntry(els.entryDateInput.value));
-  alert("사진을 업로드했습니다.");
+  showToast("사진을 업로드했습니다.");
 });
+
+els.previewClientBtn.addEventListener("click", openClientPreview);
 
 els.softDeleteSiteBtn.addEventListener("click", async () => {
   if (!state.selectedSite || !confirm("고객 접근을 종료할까요? 데이터는 보관됩니다.")) return;
@@ -491,6 +497,17 @@ async function deleteAdminPhoto(photoId) {
   await loadAdminCalendar();
 }
 
+async function openClientPreview() {
+  if (!state.selectedSite) return;
+  const data = await api(`/api/admin/sites/${state.selectedSite.id}/preview-token`, {
+    method: "POST",
+    token: state.adminToken,
+  });
+  const url = new URL(`/${encodeURIComponent(data.slug)}`, location.origin);
+  url.searchParams.set("previewToken", data.token);
+  window.open(url.toString(), "_blank", "noopener");
+}
+
 function showAdminCalendarError(error) {
   els.adminCalendarMessage.textContent = `${error.message} API 컨테이너를 재빌드했는지 확인해주세요.`;
 }
@@ -580,6 +597,31 @@ function storeClientToken(slug, token) {
 
 function clearClientToken(slug) {
   localStorage.removeItem(clientTokenKey(slug));
+}
+
+function consumePreviewToken() {
+  const params = new URLSearchParams(location.search);
+  const previewToken = params.get("previewToken");
+  if (!previewToken || !state.clientSlug) return;
+  state.clientToken = previewToken;
+  storeClientToken(state.clientSlug, previewToken);
+  localStorage.setItem("clientSlug", state.clientSlug);
+  params.delete("previewToken");
+  const query = params.toString();
+  const cleanUrl = `${location.pathname}${query ? `?${query}` : ""}${location.hash}`;
+  history.replaceState(null, "", cleanUrl);
+}
+
+function showToast(message) {
+  if (!els.toast) return;
+  window.clearTimeout(state.toastTimer);
+  els.toast.textContent = message;
+  els.toast.classList.remove("hidden");
+  els.toast.classList.add("show");
+  state.toastTimer = window.setTimeout(() => {
+    els.toast.classList.remove("show");
+    els.toast.classList.add("hidden");
+  }, 1500);
 }
 
 if (state.clientSlug) {

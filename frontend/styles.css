@@ -124,6 +124,30 @@ main {
   display: none !important;
 }
 
+.toast {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  z-index: 20;
+  width: min(360px, calc(100% - 28px));
+  transform: translateX(-50%) translateY(-8px);
+  border: 1px solid rgba(23, 75, 71, 0.2);
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: var(--shadow);
+  padding: 13px 16px;
+  text-align: center;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
 .panel,
 .calendar-shell,
 .memo-panel,

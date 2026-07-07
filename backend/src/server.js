@@ -103,6 +103,13 @@ app.get("/api/admin/sites/:siteId/calendar", requireAdmin, async (req, res) => {
   res.json({ entries: await loadCalendar(req.params.siteId) });
 });
 
+app.post("/api/admin/sites/:siteId/preview-token", requireAdmin, async (req, res) => {
+  const result = await query("SELECT * FROM sites WHERE id = $1 AND status <> 'deleted'", [req.params.siteId]);
+  const site = result.rows[0];
+  if (!site) return res.status(404).json({ error: "현장을 찾을 수 없습니다." });
+  res.json({ token: signClient(site), slug: site.slug });
+});
+
 app.post("/api/admin/sites", requireAdmin, async (req, res) => {
   const slug = slugify(req.body.slug || req.body.name);
   const name = String(req.body.name || "").trim();

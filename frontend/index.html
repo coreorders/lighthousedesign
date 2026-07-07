@@ -13,6 +13,7 @@
         <h1>현장 진행 공유</h1>
       </div>
     </header>
+    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
     <main>
       <section id="clientView" class="view">
@@ -153,6 +154,7 @@
             <div id="adminPhotoList" class="admin-photo-list"></div>
 
             <div class="danger-zone">
+              <button id="previewClientBtn" class="ghost" type="button">고객화면 보기</button>
               <button id="softDeleteSiteBtn" class="danger" type="button">고객 접근 종료</button>
               <button id="purgeSiteBtn" class="danger outline" type="button">데이터 완전 삭제</button>
             </div>
