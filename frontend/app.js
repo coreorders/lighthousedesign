@@ -300,23 +300,29 @@ function renderCalendar() {
     const entry = byDate.get(key);
     const scheduleText = entry?.schedule_text || "";
     const showScheduleText = scheduleText && visibleTextLength(scheduleText) <= 4;
-    const cell = document.createElement("article");
+    const hasPopupContent = Boolean(entry?.schedule_text || entry?.photos?.length || entry?.detail_text);
+    const cell = document.createElement(hasPopupContent ? "button" : "article");
+    if (hasPopupContent) {
+      cell.type = "button";
+      cell.setAttribute("aria-label", `${formatDate(entry.entry_date)} 내용 보기`);
+      cell.addEventListener("click", () => openEntryPopup(entry));
+    }
     cell.className = `day-cell ${date.getMonth() === month ? "" : "muted"} ${entry ? "has-entry" : ""}`;
     cell.innerHTML = `<span class="day-number">${date.getDate()}</span>`;
     if (showScheduleText) {
       cell.insertAdjacentHTML("beforeend", `<span class="schedule-text short-schedule-text">${escapeHtml(scheduleText)}</span>`);
     }
-    if (entry?.schedule_text || entry?.photos?.length || entry?.detail_text) {
+    if (hasPopupContent) {
       const actions = document.createElement("div");
       actions.className = "entry-actions";
       if (scheduleText && !showScheduleText) {
-        actions.appendChild(createEntryAction("일정", "schedule", entry));
+        actions.appendChild(createEntryIndicator("일정", "schedule"));
       }
       if (entry.photos?.length) {
-        actions.appendChild(createEntryAction("사진", "photo", entry));
+        actions.appendChild(createEntryIndicator("사진", "photo"));
       }
       if (entry.detail_text) {
-        actions.appendChild(createEntryAction("글", "text", entry));
+        actions.appendChild(createEntryIndicator("글", "text"));
       }
       cell.appendChild(actions);
     }
@@ -332,6 +338,14 @@ function createEntryAction(label, type, entry) {
   button.innerHTML = `${entryIcon(type)}<span>${label}</span>`;
   button.addEventListener("click", () => openEntryPopup(entry));
   return button;
+}
+
+function createEntryIndicator(label, type) {
+  const indicator = document.createElement("span");
+  indicator.className = `entry-action entry-indicator ${type}`;
+  indicator.setAttribute("aria-hidden", "true");
+  indicator.innerHTML = `${entryIcon(type)}<span>${label}</span>`;
+  return indicator;
 }
 
 function entryIcon(type) {

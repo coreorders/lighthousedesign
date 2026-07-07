@@ -238,6 +238,9 @@ main {
 button.day-cell {
   color: var(--ink);
   text-align: left;
+  width: 100%;
+  min-height: 112px;
+  padding: 8px;
 }
 
 button.day-cell:hover {
@@ -314,6 +317,11 @@ button.day-cell:hover {
   padding: 0 8px;
   font-size: 12px;
   font-weight: 700;
+}
+
+.entry-indicator {
+  cursor: inherit;
+  pointer-events: none;
 }
 
 .entry-action:hover {
