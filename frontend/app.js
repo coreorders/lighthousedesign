@@ -209,17 +209,28 @@ els.saveScheduleBtn.addEventListener("click", async () => {
 
 els.uploadPhotosBtn.addEventListener("click", async () => {
   if (!state.selectedSite || !els.entryDateInput.value || els.photoInput.files.length === 0) return;
-  const form = new FormData();
-  [...els.photoInput.files].forEach((file) => form.append("photos", file));
-  await fetch(`${API_BASE}/api/admin/sites/${state.selectedSite.id}/calendar/${els.entryDateInput.value}/photos`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${state.adminToken}` },
-    body: form,
-  }).then(handleFetch);
-  els.photoInput.value = "";
-  await loadAdminCalendar();
-  renderAdminPhotoList(findAdminEntry(els.entryDateInput.value));
-  showToast("사진을 업로드했습니다.");
+  const files = [...els.photoInput.files];
+  setUploadBusy(true);
+  try {
+    for (let start = 0; start < files.length; start += 5) {
+      showToast(`사진 업로드 중 ${Math.min(start + 5, files.length)} / ${files.length}`);
+      const form = new FormData();
+      files.slice(start, start + 5).forEach((file) => form.append("photos", file));
+      await fetch(`${API_BASE}/api/admin/sites/${state.selectedSite.id}/calendar/${els.entryDateInput.value}/photos`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${state.adminToken}` },
+        body: form,
+      }).then(handleFetch);
+    }
+    els.photoInput.value = "";
+    await loadAdminCalendar();
+    renderAdminPhotoList(findAdminEntry(els.entryDateInput.value));
+    showToast(`사진 ${files.length}장을 업로드했습니다.`);
+  } catch (error) {
+    showToast(`사진 업로드 실패: ${error.message}`);
+  } finally {
+    setUploadBusy(false);
+  }
 });
 
 els.previewClientBtn.addEventListener("click", openClientPreview);
@@ -677,6 +688,11 @@ function showToast(message) {
     els.toast.classList.remove("show");
     window.setTimeout(() => els.toast.classList.add("hidden"), 180);
   }, 1500);
+}
+
+function setUploadBusy(busy) {
+  els.uploadPhotosBtn.disabled = busy;
+  els.uploadPhotosBtn.textContent = busy ? "사진 업로드 중..." : "사진 올리기";
 }
 
 if (state.clientSlug) {
