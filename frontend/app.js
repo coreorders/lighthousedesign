@@ -159,7 +159,7 @@ els.adminLoginForm.addEventListener("submit", async (event) => {
   }
 });
 
-els.loadSitesBtn.addEventListener("click", loadAdminSites);
+els.loadSitesBtn.addEventListener("click", safeLoadAdminSites);
 
 els.siteForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -458,6 +458,18 @@ async function loadAdminSites() {
   if (!state.selectedSite) els.adminSitePanel.classList.add("hidden");
 }
 
+async function safeLoadAdminSites() {
+  try {
+    await loadAdminSites();
+  } catch (error) {
+    if (isAdminAuthError(error)) {
+      clearAdminSession("관리자 로그인이 만료됐습니다. 다시 로그인해주세요.");
+      return;
+    }
+    els.siteList.innerHTML = `<p class="message">${escapeHtml(error.message)}</p>`;
+  }
+}
+
 function selectAdminSite(site) {
   state.selectedSite = site;
   els.adminSitePanel.classList.remove("hidden");
@@ -545,7 +557,7 @@ function setMode(mode) {
   if (admin && state.adminToken) {
     els.adminLoginForm.classList.add("hidden");
     els.adminDashboard.classList.remove("hidden");
-    loadAdminSites().catch(() => {});
+    safeLoadAdminSites();
   }
   if (!admin && state.clientSlug && state.clientToken) {
     loadClientDashboard().catch(() => {
@@ -627,6 +639,19 @@ function storeClientToken(slug, token) {
 
 function clearClientToken(slug) {
   localStorage.removeItem(clientTokenKey(slug));
+}
+
+function clearAdminSession(message = "") {
+  state.adminToken = "";
+  localStorage.removeItem("adminToken");
+  els.adminDashboard.classList.add("hidden");
+  els.adminLoginForm.classList.remove("hidden");
+  els.adminLoginMessage.textContent = message;
+  els.siteList.innerHTML = "";
+}
+
+function isAdminAuthError(error) {
+  return String(error?.message || "").includes("관리자 인증");
 }
 
 function consumePreviewToken() {
